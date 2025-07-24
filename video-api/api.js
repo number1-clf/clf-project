@@ -13,7 +13,12 @@ export default {
     if (url.pathname === '/video/random') {
       const randomVideo = randomItem(videos);
       return new Response(JSON.stringify({ videoId: randomVideo.videoId }), {
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: {
+          'Content-Type': 'application/json',
+          "Access-Control-Allow-Origin": "https://cloudflare.careerladder.pages.dev", // allow your Pages site
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type"
+        },
       });
     }
 
@@ -26,13 +31,23 @@ export default {
       if (!video || !video.similar_videos?.length) {
         return new Response(JSON.stringify({ error: 'Video not found or no similar videos available' }), {
           status: 404,
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          headers: {
+            'Content-Type': 'application/json',
+            "Access-Control-Allow-Origin": "https://cloudflare.careerladder.pages.dev", // allow your Pages site
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type"
+          },
         });
       }
 
       const randomSimilar = randomItem(video.similar_videos);
       return new Response(JSON.stringify({ videoId: randomSimilar }), {
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: {
+          'Content-Type': 'application/json',
+          "Access-Control-Allow-Origin": "https://cloudflare.careerladder.pages.dev", // allow your Pages site
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type"
+        },
       });
     }
 
