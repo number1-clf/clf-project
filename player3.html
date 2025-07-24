@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Career Ladder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="button-container">
+    <button id="random-button" class="floating-button" aria-label="Random Video">Random Video</button>
+    <button id="similar-button" class="floating-button" aria-label="Similar Video">Similar Video</button>
+  </div>
+  <div id="player"></div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    let currentVideoId = null;
+    let player;
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        player.seekTo(0);
+        player.playVideo();
+      }
+    }
+
+    function onYouTubeIframeAPIReady() {
+      loadRandomVideo().then(videoId => {
+        currentVideoId = videoId;
+        player = new YT.Player('player', {
+          height: '100%',
+          width: '100%',
+          videoId: currentVideoId,
+          playerVars: {
+            autoplay: 1,
+            mute: 0,
+            controls: 1,
+            playsinline: 1
+          },
+          events: {
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      });
+    }
+
+    async function loadRandomVideo() {
+      try {
+        const response = await fetch('http://localhost:3000/video/random');
+        const data = await response.json();
+        return data.videoId;
+      } catch (err) {
+        console.error('Failed to fetch random video:', err);
+        return '8eSn6c2l1yo'; // fallback
+      }
+    }
+
+    async function loadSimilarVideo(videoId) {
+      try {
+        const response = await fetch(`http://localhost:3000/video/${videoId}/similar`);
+        const data = await response.json();
+        return data.videoId;
+      } catch (err) {
+        console.error('Failed to fetch similar video:', err);
+        return null;
+      }
+    }
+
+    document.getElementById('random-button').addEventListener('click', async () => {
+      const newVideoId = await loadRandomVideo();
+      if (newVideoId && newVideoId !== currentVideoId) {
+        currentVideoId = newVideoId;
+        player.loadVideoById(newVideoId);
+      }
+    });
+
+    document.getElementById('similar-button').addEventListener('click', async () => {
+      if (!currentVideoId) return;
+      const similarVideoId = await loadSimilarVideo(currentVideoId);
+      if (similarVideoId && similarVideoId !== currentVideoId) {
+        currentVideoId = similarVideoId;
+        player.loadVideoById(similarVideoId);
+      }
+    });
+  </script>
+</body>
+
+</html>
